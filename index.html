@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Loan Default Scorecard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        label { display: block; margin-top: 10px; font-weight: bold; }
+        input, select { margin-bottom: 10px; padding: 5px; width: 200px; }
+        button { padding: 10px 20px; margin-top: 20px; cursor: pointer; }
+        #result { margin-top: 20px; font-size: 1.2em; font-weight: bold; }
+        .low { color: green; }
+        .medium { color: orange; }
+        .high { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Loan Default Scorecard</h1>
+
+    <label for="int_rate">Interest Rate (%)</label>
+    <input type="number" id="int_rate" step="0.01" value="3">
+
+    <label for="term">Term</label>
+    <select id="term">
+        <option value="36 months">36 months</option>
+        <option value="60 months">60 months</option>
+    </select>
+
+    <label for="dti">Debt-to-Income Ratio (DTI)</label>
+    <input type="number" id="dti" step="0.01" value="0.5">
+
+    <label for="home_ownership">Home Ownership</label>
+    <select id="home_ownership">
+        <option value="RENT">RENT</option>
+        <option value="OWN">OWN</option>
+        <option value="MORTGAGE">MORTGAGE</option>
+        <option value="ANY">ANY</option>
+    </select>
+
+    <label for="annual_inc">Annual Income ($)</label>
+    <input type="number" id="annual_inc" step="1000" value="50000">
+
+    <label for="loan_amnt">Loan Amount ($)</label>
+    <input type="number" id="loan_amnt" step="1000" value="10000">
+
+    <button onclick="predictLoan()">Predict</button>
+
+    <div id="result"></div>
+
+    <script>
+        async function predictLoan() {
+            const data = {
+                int_rate: parseFloat(document.getElementById("int_rate").value),
+                term: document.getElementById("term").value,
+                dti: parseFloat(document.getElementById("dti").value),
+                home_ownership: document.getElementById("home_ownership").value,
+                annual_inc: parseFloat(document.getElementById("annual_inc").value),
+                loan_amnt: parseFloat(document.getElementById("loan_amnt").value)
+            };
+
+            const resultDiv = document.getElementById("result");
+            resultDiv.innerHTML = "Predicting...";
+
+            try {
+                const response = await fetch("/predict", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    const errorJson = await response.json();
+                    throw new Error(errorJson.detail || "Unknown API error");
+                }
+
+                const result = await response.json();
+                const pd = result.PD;
+                const score = result.Score;
+
+                // Color-coded risk bands
+                let riskClass = "low";
+                let riskText = "Low Risk";
+                if (pd >= 0.3) {
+                    riskClass = "high";
+                    riskText = "High Risk";
+                } else if (pd >= 0.1) {
+                    riskClass = "medium";
+                    riskText = "Medium Risk";
+                }
+
+                resultDiv.innerHTML = `
+                    PD: ${(pd*100).toFixed(2)}% <br>
+                    Score: ${score.toFixed(0)} <br>
+                    <span class="${riskClass}">${riskText}</span>
+                `;
+            } catch (err) {
+                console.error(err);
+                resultDiv.innerHTML = `<span style="color:red;">API Error: ${err.message}</span>`;
+            }
+        }
+    </script>
+</body>
+</html>
