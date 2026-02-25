@@ -78,13 +78,21 @@ Deploy models for real-time, web-based inference, bridging data science and engi
 
 ### 🏗 Project Structure
 banking-credit-risk/
+
 ├── data/                  # Raw and processed data (not included)
+
 ├── pipelines/             # ETL, validation, and training scripts
+
 ├── models/                # Saved model artifacts (joblib, metrics.json)
+
 ├── api/                   # FastAPI endpoints
+
 ├── web/                   # HTML/JS frontend for scorecard input
+
 ├── Dockerfile             # Container for validation + inference
+
 ├── Dockerfile.train       # Container for model training
+
 ├── README.md              # Project documentation
 
 ### ⚡ How to Run
