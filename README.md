@@ -50,6 +50,14 @@ Dockerized pipeline for consistent, reproducible deployment.
 
 Web-based interface allowing real-time credit risk evaluation.
 
+### Validation & Reliability
+
+Implemented structured data validation checks for missing values and schema consistency
+
+Ensured reproducibility through Docker containerisation
+
+Designed pipeline to support audit-ready documentation and traceable model outputs
+
 ### 📦 Tech Stack
 
 Python 3.11 | Pandas | NumPy | Scikit-learn | Joblib
